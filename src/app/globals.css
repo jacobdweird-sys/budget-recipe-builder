@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FCFAEF;
+  --foreground: #1e293b;
 }
 
 @theme inline {
@@ -10,17 +12,70 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-primary-50: #f0fdf0;
+  --color-primary-100: #dcfce0;
+  --color-primary-200: #bbf7c3;
+  --color-primary-300: #86ef95;
+  --color-primary-400: #6FCF6F;
+  --color-primary-500: #4CAF50;
+  --color-primary-600: #3b8a3b;
+  --color-primary-700: #2D8A2D;
+  --color-primary-800: #295729;
+  --color-primary-900: #234823;
+  --color-primary-950: #122812;
+
+  --color-secondary-50: #fffcf2;
+  --color-secondary-100: #fff7e1;
+  --color-secondary-200: #ffecc3;
+  --color-secondary-300: #ffdb93;
+  --color-secondary-400: #F9C14A;
+  --color-secondary-500: #F4A823;
+  --color-secondary-600: #D4A853;
+  --color-secondary-700: #a97d33;
+  --color-secondary-800: #8c652e;
+  --color-secondary-900: #745328;
+  --color-secondary-950: #422d12;
+
+  --animate-bounce-slow: bounce-slow 3s infinite;
+
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(-8%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+    50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
   }
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), "Inter", Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  z-index: 0;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -60px; /* extends beyond screen to prevent blur edge bleeding */
+  z-index: -1;
+  background-image: url('/bg-light.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(25px);
+  opacity: 0.8;
+}
+
+:where(.dark, .dark *) body::before {
+  background-image: url('/bg-dark.png');
+  filter: blur(25px) brightness(0.85);
+  opacity: 1;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

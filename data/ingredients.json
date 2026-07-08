@@ -1,0 +1,38 @@
+[
+  {
+    "id": "d32fad45-5567-44c2-a2e2-73f5cb262f95",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Parsley",
+    "scannedAt": "2026-04-30T02:36:20.277Z"
+  },
+  {
+    "id": "cc1ea8d3-fdb5-4d2e-8eeb-521f4798680e",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Penne Pasta",
+    "scannedAt": "2026-04-30T02:36:31.645Z"
+  },
+  {
+    "id": "317f6af0-a0e3-408b-90ea-7671d9e2e281",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Parmesan Cheese",
+    "scannedAt": "2026-04-30T02:36:47.898Z"
+  },
+  {
+    "id": "6f50e297-77cc-45b3-804e-da52c1b27514",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Tomato",
+    "scannedAt": "2026-05-04T20:22:59.845Z"
+  },
+  {
+    "id": "4aa1baa5-b53d-4b32-ac5a-347a43d99247",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Onion",
+    "scannedAt": "2026-04-30T02:37:13.371Z"
+  },
+  {
+    "id": "9b5d143f-936d-48bd-a70d-d892c8f41f5f",
+    "userId": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "ingredientName": "Chicken Breast",
+    "scannedAt": "2026-04-30T02:38:18.746Z"
+  }
+]

@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.node.json",
   "compilerOptions": {
     "target": "ES2017",
     "lib": [
@@ -43,14 +42,7 @@
     "node_modules/react-webcam",
     "node_modules/react-webcam/**/*",
     "node_modules/react-webcam/tsconfig.json",
-    "node_modules/react-webcam/dist",
     "**/node_modules",
-    "**/node_modules/**/*",
-    "**/node_modules/react-webcam/**/*"
-  ],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  }
+    "**/node_modules/**/*"
+  ]
 }

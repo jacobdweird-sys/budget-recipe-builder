@@ -1,0 +1,23 @@
+[
+  {
+    "id": "6685fbab-dbdf-49be-bfa2-33f7fd4ca5f1",
+    "email": "jacsantillanes968@gmail.com",
+    "passwordHash": "18011d1dbbc6375a54a08ad75d7811d340e88602e0bf31af6484f8cf1331716a42c04bffea9b8b966b82445c29d1c24d1627080d094921f53030d85cf7c9ac26",
+    "salt": "7b962d6ce485e17aef462b6886f15c45",
+    "createdAt": "2026-04-30T01:56:11.212Z",
+    "name": "Jacob Santillanes",
+    "dietaryPreferences": [],
+    "bio": "",
+    "avatarEmoji": "🧑‍🍳",
+    "location": "San Jose"
+  },
+  {
+    "id": "a7a649e0-ce38-4ca4-a9c1-6b6488a60366",
+    "email": "jacobdweird@gmail.com",
+    "passwordHash": "2b562bf4d5d111cf84a125df37b953cc611b001d139bd2c40cab65399fb5b316a1a67b2c3d969e8663fb2c1d1936b5975c6703240420405ac0175196ece7275a",
+    "salt": "6ce24914ac10902cc61481ba23324e5d",
+    "createdAt": "2026-07-04T18:21:05.610Z",
+    "dietaryPreferences": [],
+    "avatarEmoji": ""
+  }
+]
