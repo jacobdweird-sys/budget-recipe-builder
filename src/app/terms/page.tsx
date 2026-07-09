@@ -9,7 +9,7 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
           <p className="mb-4">
-            By accessing and using EZ Recipes ("the App"), you agree to comply with these Terms of Service. If you do not agree to these terms, please do not use the App.
+            By accessing and using EZ Recipes (&ldquo;the App&rdquo;), you agree to comply with these Terms of Service. If you do not agree to these terms, please do not use the App.
           </p>
         </section>
 
@@ -23,7 +23,7 @@ export default function TermsOfService() {
             <li>Use the materials for commercial purposes or for any public display</li>
             <li>Attempt to decompile or reverse engineer any software</li>
             <li>Remove any copyright or proprietary notations</li>
-            <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
+            <li>Transfer the materials to another person or &ldquo;mirror&rdquo; the materials on any other server</li>
             <li>Attempt to gain unauthorized access to any portion of the App</li>
           </ul>
         </section>
@@ -38,14 +38,14 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-bold mb-4">4. User Content</h2>
           <p className="mb-4">
-            You retain ownership of any content you create in the App (meal plans, notes, preferences). By using the App, you grant us permission to use your content for improving the App's functionality.
+            You retain ownership of any content you create in the App (meal plans, notes, preferences). By using the App, you grant us permission to use your content for improving the App&apos;s functionality.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-4">5. Disclaimer of Warranties</h2>
           <p className="mb-4">
-            The materials on EZ Recipes are provided on an "as is" basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+            The materials on EZ Recipes are provided on an &ldquo;as is&rdquo; basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
           </p>
         </section>
 
@@ -66,7 +66,7 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-2xl font-bold mb-4">8. Links</h2>
           <p className="mb-4">
-            EZ Recipes has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by EZ Recipes of the site. Use of any such linked website is at the user's own risk.
+            EZ Recipes has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by EZ Recipes of the site. Use of any such linked website is at the user&apos;s own risk.
           </p>
         </section>
 
