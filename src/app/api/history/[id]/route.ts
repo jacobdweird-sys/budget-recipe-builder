@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { readJsonFile, writeJsonFile } from "@/lib/db";
+import { sql } from "@/lib/neon";
 import { cookies } from "next/headers";
 
 export async function DELETE(
@@ -14,7 +14,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -25,15 +25,14 @@ export async function DELETE(
     return NextResponse.json({ error: "ID required" }, { status: 400 });
   }
 
-  const history = readJsonFile<Array<{id: string; user_id: string; generated_at: string}>>("history.json", []);
-  
-  const index = history.findIndex((h) => h.id === id && h.user_id === session.userId);
-  if (index === -1) {
+  const rows = (await sql`
+    DELETE FROM history WHERE id = ${id} AND user_id = ${session.userId}
+    RETURNING id
+  `) as Array<{ id: string }>;
+
+  if (rows.length === 0) {
     return NextResponse.json({ error: "Not found or not authorized" }, { status: 404 });
   }
-
-  history.splice(index, 1);
-  writeJsonFile("history.json", history);
 
   return NextResponse.json({ success: true });
 }

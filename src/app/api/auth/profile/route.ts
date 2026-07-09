@@ -10,7 +10,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -32,7 +32,7 @@ export async function PUT(request: Request) {
 
     const budgetGoal = budgetGoalStr && budgetGoalStr.trim() ? Number(budgetGoalStr) : undefined;
 
-    const updatedUser = updateUserProfile(session.userId, {
+    const updatedUser = await updateUserProfile(session.userId, {
       name: name || undefined,
       dietaryPreferences,
       bio: bio || undefined,

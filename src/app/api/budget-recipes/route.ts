@@ -3,10 +3,11 @@ import { z } from "zod";
 import { keepBudgetMeals, priceRecipe } from "@/lib/mealMath";
 import { getLocalSales } from "@/lib/sales";
 import { MealPlan } from "@/types";
-import { readJsonFile, writeJsonFile } from "@/lib/db";
+import { sql } from "@/lib/neon";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import crypto from "crypto";
 
 const FOOD_CATEGORIES = [
   "mexican",
@@ -358,7 +359,7 @@ export async function POST(request: Request) {
   const sessionId = cookieStore.get("session_id")?.value;
   let userId: string | null = null;
   if (sessionId) {
-    const session = getSession(sessionId);
+    const session = await getSession(sessionId);
     if (session) userId = session.userId;
   }
   const body = await request.json();
@@ -412,18 +413,19 @@ export async function POST(request: Request) {
   );
 
   if (userId) {
-    const history = readJsonFile<Array<Record<string, unknown>>>("history.json", []);
-    history.push({
-      id: crypto.randomUUID(),
-      user_id: userId,
-      zip_code: parsed.data.zipCode ?? null,
-      pantry_items: parsed.data.pantryItems,
-      food_preferences: parsed.data.foodPreferences ?? null,
-      budget: parsed.data.budget,
-      meals,
-      generated_at: new Date().toISOString(),
-    });
-    writeJsonFile("history.json", history);
+    const id = crypto.randomUUID();
+    await sql`
+      INSERT INTO history (id, user_id, zip_code, pantry_items, food_preferences, budget, meals)
+      VALUES (
+        ${id},
+        ${userId},
+        ${parsed.data.zipCode ?? null},
+        ${JSON.stringify(parsed.data.pantryItems)}::jsonb,
+        ${JSON.stringify(parsed.data.foodPreferences ?? [])}::jsonb,
+        ${parsed.data.budget},
+        ${JSON.stringify(meals)}::jsonb
+      )
+    `;
   }
 
   return NextResponse.json({ meals, sales, availableCategories: FOOD_CATEGORIES });

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = verifyUser(email, password);
+    const user = await verifyUser(email, password);
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const session = createSession(user.id);
+    const session = await createSession(user.id);
 
     const cookieStore = await cookies();
     cookieStore.set("session_id", session.id, {

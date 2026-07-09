@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { readJsonFile, writeJsonFile } from "@/lib/db";
+import { sql } from "@/lib/neon";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
@@ -11,6 +11,22 @@ export interface ScannedIngredient {
   scannedAt: string;
 }
 
+type IngredientRow = {
+  id: string;
+  user_id: string;
+  ingredient_name: string;
+  scanned_at: string;
+};
+
+function rowToIngredient(row: IngredientRow): ScannedIngredient {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    ingredientName: row.ingredient_name,
+    scannedAt: row.scanned_at,
+  };
+}
+
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("session_id")?.value;
@@ -19,7 +35,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -31,30 +47,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Ingredient name required" }, { status: 400 });
     }
 
-    const ingredients = readJsonFile<ScannedIngredient[]>("ingredients.json", []);
-    
-    // Prevent duplicates for the same user (or just update scannedAt)
-    const existing = ingredients.find(
-      (i) => i.userId === session.userId && i.ingredientName.toLowerCase() === ingredientName.toLowerCase()
-    );
+    const existingRows = (await sql`
+      SELECT * FROM ingredients
+      WHERE user_id = ${session.userId} AND LOWER(ingredient_name) = LOWER(${ingredientName})
+      LIMIT 1
+    `) as IngredientRow[];
 
-    if (existing) {
-      existing.scannedAt = new Date().toISOString();
-      writeJsonFile("ingredients.json", ingredients);
-      return NextResponse.json({ ingredient: existing });
+    if (existingRows[0]) {
+      const updated = (await sql`
+        UPDATE ingredients SET scanned_at = now()
+        WHERE id = ${existingRows[0].id}
+        RETURNING *
+      `) as IngredientRow[];
+      return NextResponse.json({ ingredient: rowToIngredient(updated[0]) });
     }
 
-    const newIngredient: ScannedIngredient = {
-      id: crypto.randomUUID(),
-      userId: session.userId,
-      ingredientName,
-      scannedAt: new Date().toISOString(),
-    };
+    const id = crypto.randomUUID();
+    const inserted = (await sql`
+      INSERT INTO ingredients (id, user_id, ingredient_name)
+      VALUES (${id}, ${session.userId}, ${ingredientName})
+      RETURNING *
+    `) as IngredientRow[];
 
-    ingredients.push(newIngredient);
-    writeJsonFile("ingredients.json", ingredients);
-
-    return NextResponse.json({ ingredient: newIngredient });
+    return NextResponse.json({ ingredient: rowToIngredient(inserted[0]) });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json({ error: errorMessage }, { status: 400 });
@@ -69,15 +84,16 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const ingredients = readJsonFile<ScannedIngredient[]>("ingredients.json", []);
-  const userIngredients = ingredients
-    .filter((i) => i.userId === session.userId)
-    .sort((a, b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
+  const rows = (await sql`
+    SELECT * FROM ingredients
+    WHERE user_id = ${session.userId}
+    ORDER BY scanned_at DESC
+  `) as IngredientRow[];
 
-  return NextResponse.json({ data: userIngredients });
+  return NextResponse.json({ data: rows.map(rowToIngredient) });
 }

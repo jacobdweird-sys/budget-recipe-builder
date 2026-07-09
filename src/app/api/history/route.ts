@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { readJsonFile } from "@/lib/db";
+import { sql } from "@/lib/neon";
 import { cookies } from "next/headers";
 
 export async function GET() {
@@ -11,15 +11,35 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const history = readJsonFile<Array<{user_id: string; generated_at: string}>>("history.json", []);
-  const userHistory = history
-    .filter((h) => h.user_id === session.userId)
-    .sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
+  const rows = (await sql`
+    SELECT id, zip_code, pantry_items, food_preferences, budget, meals, generated_at
+    FROM history
+    WHERE user_id = ${session.userId}
+    ORDER BY generated_at DESC
+  `) as Array<{
+    id: string;
+    zip_code: string | null;
+    pantry_items: string[];
+    food_preferences: string[] | null;
+    budget: string;
+    meals: unknown[];
+    generated_at: string;
+  }>;
+
+  const userHistory = rows.map((r) => ({
+    id: r.id,
+    generated_at: r.generated_at,
+    zip_code: r.zip_code,
+    pantry_items: r.pantry_items,
+    food_preferences: r.food_preferences,
+    budget: Number(r.budget),
+    meals: r.meals,
+  }));
 
   return NextResponse.json({ data: userHistory });
 }

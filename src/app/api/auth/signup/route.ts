@@ -13,8 +13,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = createUser(email, password);
-    const session = createSession(user.id);
+    const user = await createUser(email, password);
+    const session = await createSession(user.id);
 
     const cookieStore = await cookies();
     cookieStore.set("session_id", session.id, {
