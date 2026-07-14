@@ -52,7 +52,7 @@ export interface PlannerEntryDbRow {
   id: string;
   user_id: string;
   date: string;
-  recipe: any;
+  recipe: unknown;
   created_at: string;
 }
 
