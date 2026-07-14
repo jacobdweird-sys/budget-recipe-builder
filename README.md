@@ -31,6 +31,10 @@ Required integrations:
 - `GEMINI_API_KEY`
 - `NEXT_PUBLIC_APP_URL`
 
+Optional database connection (fallback to local files):
+
+- `DATABASE_URL` (Provide a PostgreSQL connection string, e.g. from Neon, to run in persistent SQL database mode. If omitted, the app will automatically fall back to saving/reading from local JSON files under `data/` as documented below.)
+
 Optional (currently stubbed, not called by the live recipe flow):
 
 - `SPOONACULAR_API_KEY`
@@ -42,7 +46,7 @@ Optional local sales API:
 - `GROCERY_SALES_API_URL`
 - `GROCERY_SALES_API_KEY`
 
-3. The app stores users, sessions, and meal history as JSON files under `data/` — created automatically on first run, no external database setup needed.
+3. The app stores users, sessions, and meal history as JSON files under `data/` by default (when `DATABASE_URL` is not set). These are created automatically on first run, requiring no external database setup.
 
 4. Run the app:
 

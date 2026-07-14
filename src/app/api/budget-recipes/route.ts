@@ -66,10 +66,15 @@ async function generateRecipesWithGemini(
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-3.5-flash",
+      generationConfig: {
+        temperature: 0.9,
+      },
+    });
 
-    const preferencesText = foodPreferences.length > 0 
-      ? `User food preferences: ${foodPreferences.join(", ")}.` 
+    const preferencesRequirement = foodPreferences.length > 0 
+      ? `- MUST strictly adhere to these food preferences / dietary restrictions: ${foodPreferences.join(", ")}` 
       : "";
     
     const pantryText = pantryItems.length > 0 
@@ -78,11 +83,11 @@ async function generateRecipesWithGemini(
 
     const prompt = `Generate ${recipeQuantity} unique, budget-friendly recipes with a maximum cost of $${budget} per serving.
 
-${preferencesText}
 ${pantryText}
 
 Requirements:
 - Each recipe should be realistic and achievable for home cooks
+${preferencesRequirement}
 - MUST use ingredients from the user's pantry: ${pantryItems.join(", ")}
 - Include 4-6 ingredients per recipe (prioritizing pantry items)
 - Serve 4 people minimum

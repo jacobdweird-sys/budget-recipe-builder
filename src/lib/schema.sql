@@ -39,3 +39,13 @@ CREATE TABLE IF NOT EXISTS ingredients (
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_history_user_id ON history(user_id);
 CREATE INDEX IF NOT EXISTS idx_ingredients_user_id ON ingredients(user_id);
+
+CREATE TABLE IF NOT EXISTS planner_entries (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  date TEXT NOT NULL,
+  recipe JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_planner_entries_user_id ON planner_entries(user_id);

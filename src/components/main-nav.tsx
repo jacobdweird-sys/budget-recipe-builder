@@ -38,12 +38,32 @@ export function MainNav() {
             </div>
           </Link>
 
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-1.5 lg:gap-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-1.5 rounded-xl font-extrabold text-sm transition-all duration-300 ${
+                    isActive
+                      ? "bg-primary-500 text-white shadow-md shadow-primary-500/20"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+
           {/* Right side: Hamburger + Theme Toggle */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all duration-300 hover:scale-110 active:scale-95"
+              className="md:hidden p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all duration-300 hover:scale-110 active:scale-95"
               aria-label="Toggle menu"
             >
               {isMenuOpen ? (
@@ -57,7 +77,7 @@ export function MainNav() {
 
         {/* Mobile Menu - Slides in from top */}
         <div
-          className={`overflow-hidden transition-all duration-500 ease-out mx-3 mt-3 rounded-2xl ${
+          className={`md:hidden overflow-hidden transition-all duration-500 ease-out mx-3 mt-3 rounded-2xl ${
             isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >

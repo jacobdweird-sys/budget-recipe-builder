@@ -9,6 +9,7 @@ type PlannerDay = {
   date: string;
   dayName: string;
   recipe: MealPlan | null;
+  servings: number;
 };
 
 export default function PlannerPage() {
@@ -67,9 +68,19 @@ export default function PlannerPage() {
         date: dateStr,
         dayName,
         recipe: null,
+        servings: 1,
       });
     }
     setDays(newDays);
+  }
+
+  function updateServings(dayIndex: number, delta: number) {
+    const newDays = [...days];
+    const newServings = (newDays[dayIndex].servings || 1) + delta;
+    if (newServings >= 1) {
+      newDays[dayIndex].servings = newServings;
+      setDays(newDays);
+    }
   }
 
   function assignRecipeToDay(dayIndex: number, recipe: MealPlan) {
@@ -92,7 +103,7 @@ export default function PlannerPage() {
 
   const totalCost = useMemo(() => {
     return days
-      .reduce((sum, day) => sum + (day.recipe?.estimatedCostPerServing ?? 0), 0)
+      .reduce((sum, day) => sum + (day.recipe?.estimatedCostPerServing ?? 0) * (day.servings ?? 1), 0)
       .toFixed(2);
   }, [days]);
 
@@ -209,6 +220,15 @@ export default function PlannerPage() {
                     ${day.recipe.estimatedCostPerServing} per serving
                   </p>
                 </div>
+                <div className="flex items-center gap-3 py-1">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Servings:</span>
+                  <div className="flex items-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <button onClick={() => updateServings(idx, -1)} className="px-2 py-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">-</button>
+                    <span className="text-sm font-bold w-6 text-center">{day.servings}</span>
+                    <button onClick={() => updateServings(idx, 1)} className="px-2 py-1 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">+</button>
+                  </div>
+                  <span className="text-xs font-bold text-primary-600 ml-auto">${((day.recipe.estimatedCostPerServing ?? 0) * (day.servings ?? 1)).toFixed(2)}</span>
+                </div>
                 <button
                   onClick={() => removeRecipeFromDay(idx)}
                   className="w-full rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-2 text-sm font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center gap-2"
@@ -272,7 +292,7 @@ export default function PlannerPage() {
                     {day.date}: {day.recipe?.title}
                   </span>
                   <span className="text-sm font-bold text-primary-600 dark:text-primary-400">
-                    ${day.recipe?.estimatedCostPerServing}
+                    ${((day.recipe?.estimatedCostPerServing ?? 0) * (day.servings ?? 1)).toFixed(2)}
                   </span>
                 </div>
               ))}

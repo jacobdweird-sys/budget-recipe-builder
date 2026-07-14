@@ -38,6 +38,16 @@ export default function AccountPage() {
   const [mode, setMode] = useState<"signIn" | "signUp" | "reset">("signIn");
   const [authLoading, setAuthLoading] = useState(false);
 
+  // -------------------- Password Reset & Security state --------------------
+  const [resetStep, setResetStep] = useState<1 | 2>(1);
+  const [resetToken, setResetToken] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [secNewPassword, setSecNewPassword] = useState("");
+  const [secConfirmPassword, setSecConfirmPassword] = useState("");
+  const [securityMsg, setSecurityMsg] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
   // -------------------- Dashboard state --------------------
   const [activeTab, setActiveTab] = useState<"profile" | "ingredients" | "recipes">("profile");
   const [userName, setUserName] = useState("");
@@ -188,30 +198,95 @@ export default function AccountPage() {
     }
   }
 
-  async function resetPassword() {
+  async function requestResetToken() {
     setAuthLoading(true);
     setMessage("");
     try {
-      const res = await fetch("/api/auth/reset", {
+      const res = await fetch("/api/auth/reset-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword }),
+        body: JSON.stringify({ email }),
       });
+      const data = await res.json();
       if (res.ok) {
-        setMessage("Password reset requested successfully. You can now sign in.");
-        setMode("signIn");
-        setEmail("");
-        setNewPassword("");
-      } else if (res.status === 400) {
-        setMessage("Invalid email format.");
+        setResetStep(2);
+        setMessage(data.message || "Verification code generated! Please check server console.");
+        if (data.devToken) {
+          setResetToken(data.devToken);
+          console.log("[DEV MODE] Auto-populated reset token:", data.devToken);
+        }
       } else {
-        setMessage("An error occurred. Please try again.");
+        setMessage(data.error || "An error occurred. Please try again.");
       }
     } catch (e) {
       console.error(e);
       setMessage("An error occurred. Please try again.");
     } finally {
       setAuthLoading(false);
+    }
+  }
+
+  async function completeResetPassword() {
+    if (newPassword !== confirmNewPassword) {
+      setMessage("Passwords do not match.");
+      return;
+    }
+    setAuthLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/auth/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, token: resetToken, newPassword }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("Password reset successfully. You can now sign in.");
+        setMode("signIn");
+        setEmail("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setResetToken("");
+        setResetStep(1);
+      } else {
+        setMessage(data.error || "An error occurred. Please try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      setMessage("An error occurred. Please try again.");
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (secNewPassword !== secConfirmPassword) {
+      setSecurityMsg("New passwords do not match.");
+      return;
+    }
+    setIsChangingPassword(true);
+    setSecurityMsg("");
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword: secNewPassword }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSecurityMsg("Password updated successfully!");
+        setCurrentPassword("");
+        setSecNewPassword("");
+        setSecConfirmPassword("");
+      } else {
+        setSecurityMsg(data.error || "Failed to update password.");
+      }
+    } catch (err) {
+      console.error(err);
+      setSecurityMsg("Network error. Please try again.");
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -282,13 +357,18 @@ export default function AccountPage() {
             </p>
           )}
           <div className="space-y-4">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-            />
+            {/* Show email input for Sign In, Sign Up, or Step 1 of Password Reset */}
+            {(mode !== "reset" || resetStep === 1) && (
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+              />
+            )}
+
+            {/* Show normal password input only for Sign In and Sign Up */}
             {mode !== "reset" && (
               <input
                 type="password"
@@ -298,20 +378,43 @@ export default function AccountPage() {
                 className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
               />
             )}
-            {mode === "reset" && (
-              <input
-                type="password"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-              />
+
+            {/* Step 2 of Password Reset: Show Token, New Password, Confirm Password */}
+            {mode === "reset" && resetStep === 2 && (
+              <>
+                <div className="text-slate-400 text-xs font-semibold px-1">
+                  Email: <span className="text-slate-200">{email}</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Verification Code (6 digits)"
+                  value={resetToken}
+                  onChange={(e) => setResetToken(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                />
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                />
+              </>
             )}
+
             <button
               onClick={() => {
                 if (mode === "signIn") signIn();
                 else if (mode === "signUp") signUp();
-                else resetPassword();
+                else if (resetStep === 1) requestResetToken();
+                else completeResetPassword();
               }}
               disabled={authLoading}
               className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 disabled:from-slate-700 disabled:to-slate-700 text-slate-900 font-black py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary-500/25 flex items-center justify-center gap-2"
@@ -324,7 +427,7 @@ export default function AccountPage() {
                   </svg> Processing...
                 </>
               ) : mode === "reset" ? (
-                "Reset Password"
+                resetStep === 1 ? "Send Verification Code" : "Update Password"
               ) : mode === "signUp" ? (
                 "Sign Up"
               ) : (
@@ -333,11 +436,11 @@ export default function AccountPage() {
             </button>
           </div>
           <div className="mt-6 flex gap-3 justify-center text-sm font-semibold">
-            <button onClick={() => { setMode("signIn"); setMessage(""); }} className="text-primary-400 hover:text-primary-300">Sign In</button>
+            <button onClick={() => { setMode("signIn"); setMessage(""); setResetStep(1); setResetToken(""); }} className="text-primary-400 hover:text-primary-300">Sign In</button>
             <span className="text-slate-700">|</span>
-            <button onClick={() => { setMode("signUp"); setMessage(""); }} className="text-primary-400 hover:text-primary-300">Sign Up</button>
+            <button onClick={() => { setMode("signUp"); setMessage(""); setResetStep(1); setResetToken(""); }} className="text-primary-400 hover:text-primary-300">Sign Up</button>
             <span className="text-slate-700">|</span>
-            <button onClick={() => { setMode("reset"); setMessage(""); }} className="text-primary-400 hover:text-primary-300">Reset</button>
+            <button onClick={() => { setMode("reset"); setMessage(""); setResetStep(1); setResetToken(""); }} className="text-primary-400 hover:text-primary-300">Reset</button>
           </div>
         </div>
       </div>
@@ -404,7 +507,8 @@ export default function AccountPage() {
 
           {/* ---------- PROFILE TAB ---------- */}
           {activeTab === "profile" && (
-            <form onSubmit={handleProfileUpdate} className="space-y-6">
+            <>
+              <form onSubmit={handleProfileUpdate} className="space-y-6">
               {profileMsg && (
                 <div
                   className={`p-3 rounded-xl text-sm font-bold ${
@@ -543,6 +647,84 @@ export default function AccountPage() {
                 )}
               </button>
             </form>
+
+              {/* Security & Password Reset Section */}
+              <div className="border-t border-slate-800 pt-8 mt-8">
+                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-white to-secondary-400 mb-4 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+                  Change Password
+                </h3>
+                <p className="text-slate-400 text-xs font-semibold mb-4">
+                  Require your current password to verify your identity before setting a new password.
+                </p>
+
+                <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                  {securityMsg && (
+                    <div
+                      className={`p-3 rounded-xl text-sm font-bold ${
+                        securityMsg.includes("success") || securityMsg.includes("updated")
+                          ? "bg-green-500/10 border border-green-500/30 text-green-400"
+                          : "bg-red-500/10 border border-red-500/30 text-red-400"
+                      }`}
+                    >
+                      {securityMsg}
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-2 text-sm">Current Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-2 text-sm">New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter new password (min. 6 chars)"
+                      value={secNewPassword}
+                      onChange={(e) => setSecNewPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-2 text-sm">Confirm New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Confirm new password"
+                      value={secConfirmPassword}
+                      onChange={(e) => setSecConfirmPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 disabled:from-slate-700 disabled:to-slate-700 text-slate-900 font-black rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-primary-500/25 flex items-center justify-center gap-2 text-sm mt-2"
+                  >
+                    {isChangingPassword ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg> Changing...
+                      </>
+                    ) : (
+                      "Update Password"
+                    )}
+                  </button>
+                </form>
+              </div>
+            </>
           )}
 
           {/* ---------- INGREDIENTS TAB ---------- */}

@@ -36,6 +36,11 @@ export default function BudgetPage() {
       .then((data) => {
         if (data.user) {
           setToken("local_session");
+          if (data.user.location) setZipCode(data.user.location);
+          if (data.user.budgetGoal) setBudget(data.user.budgetGoal);
+          if (data.user.dietaryPreferences && Array.isArray(data.user.dietaryPreferences)) {
+            setSelectedFoodPrefs(data.user.dietaryPreferences);
+          }
         }
       })
       .catch(() => {});
