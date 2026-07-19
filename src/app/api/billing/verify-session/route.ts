@@ -4,11 +4,12 @@ import { getSession, getUserById } from "@/lib/auth";
 import { sql } from "@/lib/neon";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_123", {
-  apiVersion: "2026-06-24.dahlia",
-});
 
 export async function GET(req: Request) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2026-06-24.dahlia",
+  });
+
   try {
     const url = new URL(req.url);
     const sessionId = url.searchParams.get("session_id");

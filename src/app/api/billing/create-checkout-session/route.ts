@@ -3,9 +3,6 @@ import { cookies } from "next/headers";
 import { getSession, getUserById } from "@/lib/auth";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_123", {
-  apiVersion: "2026-06-24.dahlia",
-});
 
 const PLAN_PRICES = {
   basic: { amount: 499, name: "Basic Plan - 100 Credits" },
@@ -14,6 +11,10 @@ const PLAN_PRICES = {
 };
 
 export async function POST(req: Request) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2026-06-24.dahlia",
+  });
+
   try {
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("session_id")?.value;
