@@ -5,7 +5,7 @@ import { getLocalSales } from "@/lib/sales";
 import { MealPlan } from "@/types";
 import { sql } from "@/lib/neon";
 import { cookies } from "next/headers";
-import { getSession } from "@/lib/auth";
+import { getSession, getUserById, decrementUserCredits } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import crypto from "crypto";
 
@@ -67,7 +67,7 @@ async function generateRecipesWithGemini(
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-3.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: {
         temperature: 0.9,
       },
@@ -367,6 +367,23 @@ export async function POST(request: Request) {
     const session = await getSession(sessionId);
     if (session) userId = session.userId;
   }
+  
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized. Please log in or sign up to generate recipes." }, { status: 401 });
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    return NextResponse.json({ error: "User not found." }, { status: 404 });
+  }
+
+  if (user.credits <= 0) {
+    return NextResponse.json(
+      { error: "Insufficient credits. Please upgrade or buy top-ups to continue generating recipes.", requiresUpgrade: true },
+      { status: 403 }
+    );
+  }
+
   const body = await request.json();
   const parsed = payloadSchema.safeParse(body);
 
@@ -431,6 +448,9 @@ export async function POST(request: Request) {
         ${JSON.stringify(meals)}::jsonb
       )
     `;
+    
+    // Consume 1 credit
+    await decrementUserCredits(userId);
   }
 
   return NextResponse.json({ meals, sales, availableCategories: FOOD_CATEGORIES });

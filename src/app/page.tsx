@@ -25,24 +25,24 @@ const CalcIcon = () => (
 );
 
 const pages = [
-  { 
-    href: "/account", 
-    label: "Account", 
-    tone: "from-amber-500 to-orange-500", 
+  {
+    href: "/account",
+    label: "Account",
+    tone: "from-amber-500 to-orange-500",
     desc: "Manage your profile, saved recipes, and preferences in one place.",
     icon: <AccountIcon />
   },
-  { 
-    href: "/budget", 
-    label: "Budget Meals", 
-    tone: "from-green-500 to-lime-600", 
+  {
+    href: "/budget",
+    label: "Budget Meals",
+    tone: "from-green-500 to-lime-600",
     desc: "Get AI-generated meal ideas tailored to your budget and pantry.",
     icon: <BudgetIcon />
   },
-  { 
-    href: "/calculator", 
-    label: "Cost Calculator", 
-    tone: "from-blue-500 to-cyan-600", 
+  {
+    href: "/calculator",
+    label: "Cost Calculator",
+    tone: "from-blue-500 to-cyan-600",
     desc: "Instantly estimate the cost per serving for any recipe or meal plan.",
     icon: <CalcIcon />
   },
@@ -79,37 +79,37 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          
+
           <div className="relative flex items-center justify-center">
             {/* 3D Decorative elements */}
             <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary-400/20 dark:bg-primary-900/30 blur-[100px] rounded-full pointer-events-none" />
             <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary-400/20 dark:bg-secondary-900/30 blur-[100px] rounded-full pointer-events-none" />
-            
-            <div className="relative group w-full max-w-md aspect-square overflow-visible">
-               <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/30 to-secondary-500/30 rounded-[3rem] blur-2xl transition-all group-hover:blur-3xl" />
-               <div className="relative h-full w-full rounded-[2.5rem] border border-white/40 dark:border-slate-800 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] transition-all duration-500 group-hover:scale-[1.02] overflow-hidden">
-                 <Image
-                   src="/hero-food.png"
-                   alt="Healthy budget meal"
-                   fill
-                   className="object-cover"
-                   priority
-                 />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-               </div>
 
-               {/* Floating stat card */}
-               <div className="absolute -bottom-6 -right-6 glass-card p-5 rounded-3xl border border-white/60 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl shadow-2xl flex items-center gap-5 animate-bounce-slow z-20">
-                 <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-500/40 flex-shrink-0">
-                   <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" stroke="currentColor" strokeWidth="3.5">
-                     <path d="M20 6L9 17L4 12" />
-                   </svg>
-                 </div>
-                 <div className="min-w-0">
-                   <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">Avg. Monthly Savings</p>
-                   <p className="text-2xl font-black text-slate-900 dark:text-white">$120.00</p>
-                 </div>
-               </div>
+            <div className="relative group w-full max-w-md aspect-square overflow-visible">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/30 to-secondary-500/30 rounded-[3rem] blur-2xl transition-all group-hover:blur-3xl" />
+              <div className="relative h-full w-full rounded-[2.5rem] border border-white/40 dark:border-slate-800 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] transition-all duration-500 group-hover:scale-[1.02] overflow-hidden">
+                <Image
+                  src="/hero-food.png"
+                  alt="Healthy budget meal"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+              </div>
+
+              {/* Floating stat card */}
+              <div className="absolute -bottom-6 -right-6 glass-card p-5 rounded-3xl border border-white/60 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl shadow-2xl flex items-center gap-5 animate-bounce-slow z-20">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white shadow-lg shadow-green-500/40 flex-shrink-0">
+                  <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" stroke="currentColor" strokeWidth="3.5">
+                    <path d="M20 6L9 17L4 12" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em]">Avg. Monthly Savings</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white">$120.00</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function Home() {
             <h2 className="text-4xl font-black sm:text-5xl text-slate-900 dark:text-white">Built for your kitchen.</h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg font-medium leading-relaxed">Everything you need to master your grocery budget and discover delicious recipes with ingredients you already have.</p>
           </div>
-          
+
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {pages.map((page) => (
               <Link
@@ -147,18 +147,153 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="px-4 py-24 bg-slate-50/50 dark:bg-slate-950/50">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-4xl font-black sm:text-5xl text-slate-900 dark:text-white">Simple, transparent pricing.</h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-lg font-medium">
+              Start for free, then choose a plan that fits your kitchen.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Basic Tier Card */}
+            <div className="relative p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col hover:border-emerald-500/30 transition-colors">
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-neutral-200 mb-2">Basic</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">$4.99</span>
+                  <span className="text-slate-500">/ mo</span>
+                </div>
+                <p className="mt-4 text-emerald-500 font-bold text-lg">100 Credits</p>
+                <p className="mt-2 text-slate-600 dark:text-neutral-400 text-sm">Perfect for casual weekly meal prepping.</p>
+              </div>
+
+              <ul className="space-y-4 flex-1 mb-8">
+                {[
+                  "100 recipe generations per month",
+                  "Basic pantry scanning",
+                  "Standard budget estimations",
+                  "Save up to 20 favorite meals"
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700 dark:text-neutral-300">
+                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-slate-400 shrink-0" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-8 border-t border-slate-100 dark:border-neutral-800">
+                <Link href="/billing" className="block text-center w-full py-4 rounded-xl font-semibold text-white bg-slate-900 dark:bg-neutral-800 hover:bg-slate-800 dark:hover:bg-neutral-700 transition-colors border border-transparent dark:border-neutral-700">
+                  Get Basic
+                </Link>
+              </div>
+            </div>
+
+            {/* Pro Tier Card */}
+            <div className="relative p-8 rounded-3xl bg-gradient-to-b from-slate-900 to-black dark:from-neutral-800 dark:to-neutral-900 border border-emerald-500/50 shadow-2xl shadow-emerald-500/10 flex flex-col transform md:-translate-y-4">
+              <div className="absolute -top-4 inset-x-0 flex justify-center">
+                <span className="px-4 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 text-neutral-950 text-xs font-bold uppercase tracking-wider shadow-lg">
+                  Most Popular
+                </span>
+              </div>
+
+              <div className="relative mb-8 pt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-xl font-semibold text-white">Pro</h3>
+                  <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-emerald-400" stroke="currentColor" strokeWidth="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-extrabold text-white">$9.99</span>
+                  <span className="text-neutral-400 font-medium">/ mo</span>
+                </div>
+                <p className="mt-4 text-emerald-400 font-bold text-xl">300 Credits</p>
+                <p className="mt-2 text-emerald-400/80 text-sm font-medium">
+                  Ideal for families and daily inventory tracking.
+                </p>
+              </div>
+
+              <ul className="relative space-y-4 flex-1 mb-8">
+                {[
+                  "300 recipe generations per month",
+                  "Advanced multi-image pantry scanning",
+                  "Hyper-local grocery pricing integration",
+                  "Unlimited meal plans & history",
+                  "Export directly to Instacart/Walmart"
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-neutral-100 font-medium">
+                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-emerald-400 shrink-0" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="relative mt-auto pt-8 border-t border-neutral-700/50">
+                <Link href="/billing" className="group relative block text-center w-full py-4 rounded-xl font-semibold text-neutral-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 transition-all duration-300 shadow-[0_0_20px_rgba(52,211,153,0.3)] hover:shadow-[0_0_30px_rgba(52,211,153,0.5)]">
+                  <span>Get Pro</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Top Ups */}
+            <div className="relative p-8 rounded-3xl bg-white dark:bg-neutral-900/50 border border-slate-200 dark:border-neutral-800 shadow-xl flex flex-col hover:border-purple-500/30 transition-colors">
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-xl font-semibold text-slate-800 dark:text-neutral-200">Credit Top-Up</h3>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">$1.99</span>
+                  <span className="text-slate-500">/ pack</span>
+                </div>
+                <p className="mt-4 text-purple-500 dark:text-purple-400 font-bold text-lg">50 Credits</p>
+                <p className="mt-2 text-slate-600 dark:text-neutral-400 text-sm">Need a little extra? Buy credits on demand that never expire.</p>
+              </div>
+
+              <ul className="space-y-4 flex-1 mb-8">
+                {[
+                  "Add 50 credits instantly",
+                  "No subscription required",
+                  "Credits rollover indefinitely",
+                  "Use for generating more recipes"
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-slate-700 dark:text-neutral-300">
+                    <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-slate-400 shrink-0" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-8 border-t border-slate-100 dark:border-neutral-800">
+                <Link href="/billing" className="block text-center w-full py-4 rounded-xl font-semibold text-white bg-slate-900 dark:bg-neutral-800 hover:bg-slate-800 dark:hover:bg-neutral-700 transition-colors border border-transparent dark:border-neutral-700">
+                  Buy 50 Credits
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust Banner with 3D Effect */}
       <section className="px-4 py-24 [perspective:2000px]">
         <div className="group relative mx-auto max-w-5xl rounded-[3.5rem] p-12 sm:p-20 text-center border border-white/30 dark:border-slate-700 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white shadow-[0_50px_100px_-20px_rgba(22,163,74,0.5)] transition-all duration-700 [transform-style:preserve-3d] hover:rotate-x-3 hover:rotate-y-[-2deg] hover:shadow-[0_70px_120px_-20px_rgba(22,163,74,0.6)]">
-          
+
           {/* 3D Decorative Background Elements */}
           <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full pointer-events-none [transform:translateZ(-50px)]" />
           <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[500px] h-[500px] bg-black/20 blur-[120px] rounded-full pointer-events-none [transform:translateZ(-50px)]" />
-          
+
           {/* Floating 3D "Bubbles" */}
           <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-2xl animate-bounce-slow [transform:translateZ(50px)] hidden sm:block" />
           <div className="absolute bottom-10 right-10 w-32 h-32 bg-primary-400/20 backdrop-blur-lg rounded-full border border-white/10 shadow-2xl animate-pulse [transform:translateZ(100px)] hidden lg:block" />
-          
+
           <div className="relative z-10 [transform:translateZ(60px)]">
             <h2 className="text-4xl sm:text-6xl font-black mb-8 leading-tight tracking-tight drop-shadow-2xl">
               Join 5,000+ home cooks <br className="hidden sm:block" /> saving daily.

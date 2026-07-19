@@ -1,8 +1,8 @@
 "use client";
 
 import { MealPlan } from "@/types";
-import { useState } from "react";
-import { ShoppingCart, Copy, Printer, X, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShoppingCart, Copy, Printer, X, Check, Lock } from "lucide-react";
 
 interface ShoppingListProps {
   meals: MealPlan[];
@@ -79,6 +79,18 @@ function getCategoryForItem(item: string): string {
 
 export function ShoppingList({ meals, pantryItems = [], onClose }: ShoppingListProps) {
   const [showPantry, setShowPantry] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user && data.user.subscriptionTier === "pro") {
+          setIsPro(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const pantrySet = new Set(
     pantryItems.map((item) => item.toLowerCase().trim())
@@ -242,21 +254,40 @@ export function ShoppingList({ meals, pantryItems = [], onClose }: ShoppingListP
           )}
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <button
-              onClick={copyToClipboard}
-              className="flex-1 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold py-3 hover:shadow-[0_8px_16px_rgba(16,185,129,0.3)] transition-shadow flex items-center justify-center gap-2"
-            >
-              <Copy size={18} />
-              Copy to Clipboard
-            </button>
-            <button
-              onClick={() => window.print()}
-              className="flex-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2"
-            >
-              <Printer size={18} />
-              Print
-            </button>
+          <div className="flex flex-col gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            {isPro ? (
+              <div className="flex gap-3">
+                <button
+                  onClick={copyToClipboard}
+                  className="flex-1 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold py-3 hover:shadow-[0_8px_16px_rgba(16,185,129,0.3)] transition-shadow flex items-center justify-center gap-2"
+                >
+                  <Copy size={18} />
+                  Copy to Clipboard
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="flex-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Printer size={18} />
+                  Print
+                </button>
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 text-center rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Lock size={16} className="text-primary-600 dark:text-primary-400" />
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                    Pro Feature Locked
+                  </p>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Upgrade to Pro to unlock printing and copying to clipboard!
+                </p>
+                <a href="/billing" className="inline-block px-4 py-2 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-xs font-bold hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors">
+                  Upgrade Now
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>

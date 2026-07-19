@@ -108,11 +108,15 @@ export default function PlannerPage() {
   }, [days]);
 
   const allRecipes = useMemo(() => {
-    const recipes: MealPlan[] = [];
+    const recipesMap = new Map<number, MealPlan>();
     history.forEach(entry => {
-      recipes.push(...(entry.meals ?? []));
+      (entry.meals ?? []).forEach(meal => {
+        if (!recipesMap.has(meal.id)) {
+          recipesMap.set(meal.id, meal);
+        }
+      });
     });
-    return recipes;
+    return Array.from(recipesMap.values());
   }, [history]);
 
   if (isLoading) {

@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useState, useRef } from "react";
-import { Leaf, Clipboard, ChefHat } from "lucide-react";
+import { Leaf, Clipboard, ChefHat, User, Settings, Shield, Database, CreditCard, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 function hasRecoveryHash() {
   if (typeof window === "undefined") return false;
@@ -49,7 +50,7 @@ export default function AccountPage() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // -------------------- Dashboard state --------------------
-  const [activeTab, setActiveTab] = useState<"profile" | "ingredients" | "recipes">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "preferences" | "security" | "data" | "billing">("profile");
   const [userName, setUserName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -486,322 +487,271 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* Tabs + content card */}
-        <div className="bg-slate-900/70 backdrop-blur-2xl rounded-3xl border border-primary-500/20 shadow-2xl shadow-primary-500/10 p-6 md:p-8 transition-all hover:scale-[1.005]">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary-500/10 via-transparent to-secondary-500/10 -z-10 blur-xl" />
-          <div className="flex gap-2 border-b border-slate-800 mb-8">
-            {(["profile", "ingredients", "recipes"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-5 py-3 font-black rounded-t-xl transition-all ${
-                  activeTab === tab
-                    ? "text-primary-400 border-b-2 border-primary-400 bg-primary-500/10 backdrop-blur-sm shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {/* ---------- PROFILE TAB ---------- */}
-          {activeTab === "profile" && (
-            <>
-              <form onSubmit={handleProfileUpdate} className="space-y-6">
-              {profileMsg && (
-                <div
-                  className={`p-3 rounded-xl text-sm font-bold ${
-                    profileMsg.includes("success")
-                      ? "bg-green-500/10 border border-green-500/30 text-green-400"
-                      : "bg-red-500/10 border border-red-500/30 text-red-400"
+        {/* Responsive Grid Layout for Account Settings */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+          
+          {/* Sidebar Navigation */}
+          <div className="md:col-span-4 lg:col-span-3 space-y-2">
+            <div className="bg-slate-900/70 backdrop-blur-2xl rounded-3xl border border-primary-500/20 shadow-xl shadow-primary-500/5 p-4 flex flex-col gap-2">
+              {[
+                { id: "profile", label: "Profile", icon: User },
+                { id: "preferences", label: "Preferences", icon: Settings },
+                { id: "security", label: "Security", icon: Shield },
+                { id: "data", label: "Data & History", icon: Database },
+                { id: "billing", label: "Billing", icon: CreditCard },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as "profile" | "preferences" | "security" | "data" | "billing")}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-primary-500/10 border border-primary-500/30 text-primary-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                      : "bg-transparent border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
                   }`}
                 >
-                  {profileMsg}
+                  <div className="flex items-center gap-3">
+                    <tab.icon size={20} className={activeTab === tab.id ? "text-primary-400" : "text-slate-500"} />
+                    {tab.label}
+                  </div>
+                  {activeTab === tab.id && <ChevronRight size={16} className="text-primary-500" />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Tab Content Container */}
+          <div className="md:col-span-8 lg:col-span-9">
+            <div className="bg-slate-900/70 backdrop-blur-2xl rounded-3xl border border-primary-500/20 shadow-2xl shadow-primary-500/10 p-6 md:p-8 transition-all hover:border-primary-500/40 min-h-[400px]">
+              
+              {/* ---------- PROFILE TAB ---------- */}
+              {activeTab === "profile" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6">
+                    Public Profile
+                  </h2>
+                  <form onSubmit={handleProfileUpdate} className="space-y-6">
+                    {profileMsg && (
+                      <div className={`p-3 rounded-xl text-sm font-bold ${profileMsg.includes("success") ? "bg-green-500/10 border border-green-500/30 text-green-400" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
+                        {profileMsg}
+                      </div>
+                    )}
+                    
+                    {/* Avatar Upload */}
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2">Profile Picture</label>
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                          {avatarPreview ? (
+                            <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                          ) : avatarUrl ? (
+                            <img src={avatarUrl} alt="Current" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400">
+                              <User size={32} />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileSelect} className="hidden" />
+                          <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-bold hover:bg-slate-700 transition">Choose Image</button>
+                          <p className="text-xs text-slate-500 mt-1">JPG, PNG or GIF. Max 2MB.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-2">Display Name</label>
+                        <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-2">Location</label>
+                        <input type="text" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} placeholder="City or zip code" className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2">Bio</label>
+                      <textarea value={editBio} onChange={(e) => setEditBio(e.target.value)} rows={3} className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" />
+                    </div>
+
+                    <button type="submit" disabled={isSaving} className="px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-slate-900 font-black rounded-xl transition-all shadow-xl flex items-center justify-center gap-2">
+                      {isSaving ? "Saving..." : "Save Profile"}
+                    </button>
+                  </form>
                 </div>
               )}
 
-              {/* Avatar Upload */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-2">Profile Picture</label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                    {avatarPreview ? (
-                      <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : avatarUrl ? (
-                      <img src={avatarUrl} alt="Current" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
+              {/* ---------- PREFERENCES TAB ---------- */}
+              {activeTab === "preferences" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6">
+                    Diet & Budget Preferences
+                  </h2>
+                  <form onSubmit={handleProfileUpdate} className="space-y-6">
+                    {profileMsg && (
+                      <div className={`p-3 rounded-xl text-sm font-bold ${profileMsg.includes("success") ? "bg-green-500/10 border border-green-500/30 text-green-400" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
+                        {profileMsg}
                       </div>
                     )}
-                  </div>
-                  <div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-bold hover:bg-slate-700 transition"
-                    >
-                      Choose Image
-                    </button>
-                    <p className="text-xs text-slate-500 mt-1">JPG, PNG or GIF. Max 2MB.</p>
-                  </div>
-                </div>
-              </div>
 
-              {/* Name */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-2">Display Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-2">Bio</label>
-                <textarea
-                  value={editBio}
-                  onChange={(e) => setEditBio(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                />
-              </div>
-
-              {/* Dietary Preferences - multi-select chips */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-3">
-                  Dietary Preferences (click to toggle)
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {DIETARY_OPTIONS.map((option) => (
-                    <button
-                      type="button"
-                      key={option}
-                      onClick={() => toggleDietary(option)}
-                      className={`px-3 py-1.5 rounded-xl font-bold text-sm transition-all backdrop-blur-sm ${
-                        editDiet.includes(option)
-                          ? "bg-primary-500/20 border border-primary-400 text-primary-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                          : "bg-slate-800/50 border border-slate-700 text-slate-400 hover:border-primary-500/30"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-slate-500 mt-2">Selected: {editDiet.length > 0 ? editDiet.join(", ") : "None"}</p>
-              </div>
-
-              {/* Budget & location */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-2">Budget Goal ($)</label>
-                  <input
-                    type="number"
-                    value={editBudget}
-                    onChange={(e) => setEditBudget(e.target.value)}
-                    placeholder="e.g. 50"
-                    className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-bold mb-2">Location</label>
-                  <input
-                    type="text"
-                    value={editLocation}
-                    onChange={(e) => setEditLocation(e.target.value)}
-                    placeholder="City or zip code"
-                    className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                  />
-                </div>
-              </div>
-
-              {/* Save button */}
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 disabled:from-slate-700 disabled:to-slate-700 text-slate-900 font-black rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-primary-500/25 flex items-center justify-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                    </svg> Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </button>
-            </form>
-
-              {/* Security & Password Reset Section */}
-              <div className="border-t border-slate-800 pt-8 mt-8">
-                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-white to-secondary-400 mb-4 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">
-                  Change Password
-                </h3>
-                <p className="text-slate-400 text-xs font-semibold mb-4">
-                  Require your current password to verify your identity before setting a new password.
-                </p>
-
-                <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-                  {securityMsg && (
-                    <div
-                      className={`p-3 rounded-xl text-sm font-bold ${
-                        securityMsg.includes("success") || securityMsg.includes("updated")
-                          ? "bg-green-500/10 border border-green-500/30 text-green-400"
-                          : "bg-red-500/10 border border-red-500/30 text-red-400"
-                      }`}
-                    >
-                      {securityMsg}
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2">Budget Goal ($)</label>
+                      <input type="number" value={editBudget} onChange={(e) => setEditBudget(e.target.value)} placeholder="e.g. 50" className="w-full max-w-xs px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" />
+                      <p className="text-xs text-slate-500 mt-2">Target amount to spend per meal planning session.</p>
                     </div>
-                  )}
 
-                  <div>
-                    <label className="block text-slate-300 font-bold mb-2 text-sm">Current Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter current password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                      required
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-3">Dietary Preferences (click to toggle)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {DIETARY_OPTIONS.map((option) => (
+                          <button
+                            type="button"
+                            key={option}
+                            onClick={() => toggleDietary(option)}
+                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                              editDiet.includes(option)
+                                ? "bg-primary-500/20 border border-primary-400 text-primary-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                : "bg-slate-800/50 border border-slate-700 text-slate-400 hover:border-primary-500/30"
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-3">Selected: {editDiet.length > 0 ? editDiet.join(", ") : "None"}</p>
+                    </div>
 
-                  <div>
-                    <label className="block text-slate-300 font-bold mb-2 text-sm">New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter new password (min. 6 chars)"
-                      value={secNewPassword}
-                      onChange={(e) => setSecNewPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                      required
-                    />
-                  </div>
+                    <button type="submit" disabled={isSaving} className="px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-slate-900 font-black rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 mt-8">
+                      {isSaving ? "Saving..." : "Save Preferences"}
+                    </button>
+                  </form>
+                </div>
+              )}
 
-                  <div>
-                    <label className="block text-slate-300 font-bold mb-2 text-sm">Confirm New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Confirm new password"
-                      value={secConfirmPassword}
-                      onChange={(e) => setSecConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition text-slate-100 placeholder-slate-500"
-                      required
-                    />
-                  </div>
+              {/* ---------- SECURITY TAB ---------- */}
+              {activeTab === "security" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-2">
+                    Security & Login
+                  </h2>
+                  <p className="text-slate-400 text-sm font-medium mb-8">
+                    Require your current password to verify your identity before setting a new password.
+                  </p>
 
-                  <button
-                    type="submit"
-                    disabled={isChangingPassword}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 disabled:from-slate-700 disabled:to-slate-700 text-slate-900 font-black rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-primary-500/25 flex items-center justify-center gap-2 text-sm mt-2"
-                  >
-                    {isChangingPassword ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                        </svg> Changing...
-                      </>
-                    ) : (
-                      "Update Password"
+                  <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                    {securityMsg && (
+                      <div className={`p-3 rounded-xl text-sm font-bold ${securityMsg.includes("success") || securityMsg.includes("updated") ? "bg-green-500/10 border border-green-500/30 text-green-400" : "bg-red-500/10 border border-red-500/30 text-red-400"}`}>
+                        {securityMsg}
+                      </div>
                     )}
-                  </button>
-                </form>
-              </div>
-            </>
-          )}
 
-          {/* ---------- INGREDIENTS TAB ---------- */}
-          {activeTab === "ingredients" && (
-            <div>
-              <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
-                Saved Ingredients
-              </h2>
-              {(() => {
-                const list = getArrayFromData(ingredients);
-                if (list.length === 0) {
-                  return (
-                    <p className="text-slate-500 bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-sm">
-                      No ingredients saved yet. Scan them in the AI Cost Estimator!
-                    </p>
-                  );
-                }
-                return (
-                  <ul className="space-y-3">
-                    {list.map((item: unknown, idx: number) => {
-                      const display =
-                        (item && typeof item === 'object' && 'name' in item && typeof item.name === 'string') ? item.name :
-                        (item && typeof item === 'object' && 'ingredient_name' in item && typeof item.ingredient_name === 'string') ? item.ingredient_name :
-                        (typeof item === 'string') ? item : `Ingredient #${idx + 1}`;
-                      return (
-                        <li
-                          key={(item && typeof item === 'object' && 'id' in item && typeof item.id === 'string') ? item.id : idx}
-                          className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-primary-500/20 text-slate-200 hover:border-primary-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all transform hover:scale-[1.02] flex items-center gap-3"
-                        >
-                          <Leaf size={20} className="text-primary-400 flex-shrink-0" />
-                          {display}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                );
-              })()}
-            </div>
-          )}
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2 text-sm">Current Password</label>
+                      <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" required />
+                    </div>
 
-          {/* ---------- RECIPES TAB ---------- */}
-          {activeTab === "recipes" && (
-            <div>
-              <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
-                Recipe History
-              </h2>
-              {(() => {
-                const list = getArrayFromData(history);
-                if (list.length === 0) {
-                  return (
-                    <p className="text-slate-500 bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-sm">
-                      No recipes generated yet.
-                    </p>
-                  );
-                }
-                return (
-                  <ul className="space-y-3">
-                    {list.map((item: unknown, idx: number) => {
-                      const display =
-                        (item && typeof item === 'object' && 'title' in item && typeof item.title === 'string') ? item.title :
-                        (item && typeof item === 'object' && 'name' in item && typeof item.name === 'string') ? item.name :
-                        (typeof item === 'string') ? item : `Recipe #${idx + 1}`;
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2 text-sm">New Password</label>
+                      <input type="password" value={secNewPassword} onChange={(e) => setSecNewPassword(e.target.value)} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" required />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-2 text-sm">Confirm New Password</label>
+                      <input type="password" value={secConfirmPassword} onChange={(e) => setSecConfirmPassword(e.target.value)} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-slate-100" required />
+                    </div>
+
+                    <button type="submit" disabled={isChangingPassword} className="w-full px-6 py-3 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white font-black rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 mt-4">
+                      {isChangingPassword ? "Changing..." : "Update Password"}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* ---------- DATA & HISTORY TAB ---------- */}
+              {activeTab === "data" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-12">
+                  <div>
+                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6 flex items-center gap-2">
+                      <Leaf size={24} className="text-primary-400" /> Saved Ingredients
+                    </h2>
+                    {(() => {
+                      const list = getArrayFromData(ingredients);
+                      if (list.length === 0) return <p className="text-slate-500 bg-slate-800/50 p-4 rounded-xl border border-slate-700">No ingredients saved yet. Scan them in the AI Cost Estimator!</p>;
                       return (
-                        <li
-                          key={(item && typeof item === 'object' && 'id' in item && typeof item.id === 'string') ? item.id : idx}
-                          className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-secondary-500/20 text-slate-200 hover:border-secondary-400 hover:shadow-[0_0_15px_rgba(244,168,35,0.2)] transition-all transform hover:scale-[1.02] flex items-center gap-3"
-                        >
-                          <Clipboard size={20} className="text-secondary-400 flex-shrink-0" />
-                          {display}
-                        </li>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {list.map((item: unknown, idx: number) => {
+                            const i = item as Record<string, string>;
+                            const display = i?.name || i?.ingredient_name || (typeof item === 'string' ? item : `Ingredient #${idx + 1}`);
+                            const id = i?.id || idx;
+                            return (
+                              <div key={id} className="bg-slate-800/50 p-4 rounded-xl border border-primary-500/20 text-slate-200 flex items-center gap-3">
+                                <Leaf size={16} className="text-primary-400" /> {display}
+                              </div>
+                            );
+                          })}
+                        </div>
                       );
-                    })}
-                  </ul>
-                );
-              })()}
+                    })()}
+                  </div>
+
+                  <div>
+                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-secondary-400 to-primary-400 mb-6 flex items-center gap-2">
+                      <Clipboard size={24} className="text-secondary-400" /> Recipe History
+                    </h2>
+                    {(() => {
+                      const list = getArrayFromData(history);
+                      if (list.length === 0) return <p className="text-slate-500 bg-slate-800/50 p-4 rounded-xl border border-slate-700">No recipes generated yet.</p>;
+                      return (
+                        <ul className="space-y-3">
+                          {list.map((item: unknown, idx: number) => {
+                            const i = item as Record<string, string>;
+                            const display = i?.title || i?.name || (typeof item === 'string' ? item : `Recipe #${idx + 1}`);
+                            const id = i?.id || idx;
+                            return (
+                              <li key={id} className="bg-slate-800/50 p-4 rounded-xl border border-secondary-500/20 text-slate-200 flex items-center gap-3">
+                                <Clipboard size={16} className="text-secondary-400" /> {display}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- BILLING TAB ---------- */}
+              {activeTab === "billing" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400 mb-6">
+                    Subscription & Credits
+                  </h2>
+                  <div className="bg-slate-800/30 border border-slate-700 rounded-3xl p-8 max-w-2xl">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500/20 to-secondary-500/20 border border-primary-500/30 flex items-center justify-center">
+                        <CreditCard className="w-8 h-8 text-primary-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white text-xl font-bold">Manage Your Plan</h3>
+                        <p className="text-slate-400 text-sm">View and manage your credit balance and active subscription tier.</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4 mb-8">
+                      <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <span className="text-slate-400 font-medium">Current Status</span>
+                        <span className="text-primary-400 font-bold px-3 py-1 bg-primary-500/10 rounded-full text-sm uppercase tracking-wider">Active</span>
+                      </div>
+                    </div>
+                    <Link href="/billing" className="inline-flex w-full py-4 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-slate-950 font-black rounded-xl items-center justify-center transition-all shadow-xl">
+                      Manage Billing & Top-Ups
+                    </Link>
+                  </div>
+                </div>
+              )}
+
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

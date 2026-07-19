@@ -164,6 +164,35 @@ if (process.env.DATABASE_URL) {
           writeJson("users.json", users);
           return [users[idx]];
         }
+      } else if (query.includes("credits = COALESCE(credits, 100) + ?")) {
+        // UPDATE users SET credits = COALESCE(credits, 100) + ? WHERE id = ?
+        const addedCredits = values[0] as number;
+        const id = values[1] as string;
+        const idx = users.findIndex((u) => u.id === id);
+        if (idx !== -1) {
+          const currentCredits = users[idx].credits !== undefined ? users[idx].credits : 100;
+          users[idx] = {
+            ...users[idx],
+            credits: Number(currentCredits) + addedCredits,
+          };
+          writeJson("users.json", users);
+          return [users[idx]];
+        }
+      } else if (query.includes("credits = ?") && query.includes("subscription_tier = ?")) {
+        // UPDATE users SET credits = ?, subscription_tier = ? WHERE id = ?
+        const newCredits = values[0] as number;
+        const newTier = values[1] as string;
+        const id = values[2] as string;
+        const idx = users.findIndex((u) => u.id === id);
+        if (idx !== -1) {
+          users[idx] = {
+            ...users[idx],
+            credits: newCredits,
+            subscription_tier: newTier,
+          };
+          writeJson("users.json", users);
+          return [users[idx]];
+        }
       } else {
         const name = values[0] as string | null;
         const dietaryPrefsJson = values[1] as string | null;

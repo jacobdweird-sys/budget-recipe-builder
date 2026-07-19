@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
   bio TEXT,
   avatar_emoji TEXT,
   budget_goal NUMERIC,
-  location TEXT
+  location TEXT,
+  credits INT NOT NULL DEFAULT 10,
+  subscription_tier TEXT NOT NULL DEFAULT 'free'
 );
 
 CREATE TABLE IF NOT EXISTS sessions (

@@ -30,6 +30,8 @@ export async function GET() {
       avatarEmoji: user.avatarEmoji,
       budgetGoal: user.budgetGoal,
       location: user.location,
+      subscriptionTier: user.subscription_tier,
+      credits: user.credits
     } 
   });
 }

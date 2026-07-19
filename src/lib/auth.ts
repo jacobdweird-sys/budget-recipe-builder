@@ -13,6 +13,8 @@ export interface User {
   avatarEmoji?: string;
   budgetGoal?: number;
   location?: string;
+  credits: number;
+  subscriptionTier: string;
 }
 
 export interface Session {
@@ -33,6 +35,8 @@ type UserRow = {
   avatar_emoji: string | null;
   budget_goal: string | null;
   location: string | null;
+  credits: number;
+  subscription_tier: string;
 };
 
 function rowToUser(row: UserRow): User {
@@ -48,6 +52,8 @@ function rowToUser(row: UserRow): User {
     avatarEmoji: row.avatar_emoji ?? undefined,
     budgetGoal: row.budget_goal !== null ? Number(row.budget_goal) : undefined,
     location: row.location ?? undefined,
+    credits: Number(row.credits !== undefined ? row.credits : 100),
+    subscriptionTier: row.subscription_tier || 'free',
   };
 }
 
@@ -105,6 +111,17 @@ export async function updateUserProfile(
     RETURNING *
   `) as UserRow[];
 
+  return rows[0] ? rowToUser(rows[0]) : undefined;
+}
+
+export async function decrementUserCredits(id: string): Promise<User | undefined> {
+  const rows = (await sql`
+    UPDATE users 
+    SET credits = GREATEST(credits - 1, 0)
+    WHERE id = ${id} 
+    RETURNING *
+  `) as UserRow[];
+  
   return rows[0] ? rowToUser(rows[0]) : undefined;
 }
 
