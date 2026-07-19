@@ -15,6 +15,8 @@ interface UserDbRow {
   avatar_emoji: string;
   budget_goal: number | null;
   location: string | null;
+  credits: number;
+  subscription_tier: string;
 }
 
 interface SessionDbRow {
@@ -139,6 +141,8 @@ if (process.env.DATABASE_URL) {
         avatar_emoji: "",
         budget_goal: null,
         location: null,
+        credits: 100,
+        subscription_tier: "free",
       };
       users.push(newUser);
       writeJson("users.json", users);

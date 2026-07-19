@@ -289,7 +289,7 @@ export default function BudgetPage() {
                       <div>
                         <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3">Ingredients</h4>
                         <ul className="space-y-2">
-                          {(selectedMeal.detailedIngredients?.length ? selectedMeal.detailedIngredients : selectedMeal.ingredients.map(name => ({ name, amount: '', fromPantry: false }))).map((ingredient: any, idx: number) => (
+                          {(selectedMeal.detailedIngredients?.length ? selectedMeal.detailedIngredients : selectedMeal.ingredients.map(name => ({ name, amount: '', fromPantry: false }))).map((ingredient: {name: string, amount: string, fromPantry: boolean}, idx: number) => (
                             <li key={idx} className="flex items-center justify-between bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 px-3 py-2 rounded-lg shadow-sm">
                               <span className={`text-sm ${ingredient.fromPantry ? 'text-green-700 dark:text-green-400 font-medium' : 'text-slate-700 dark:text-slate-300'}`}>
                                 {ingredient.amount} {ingredient.name}
