@@ -9,7 +9,7 @@ export default function BillingPage() {
   const router = useRouter();
   const [isAnnual, setIsAnnual] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<'basic' | 'pro' | 'topup' | null>(null);
-  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'checkout' | 'processing' | 'success' | 'error'>('idle');
+  const [isRedirecting, setIsRedirecting] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
@@ -37,37 +37,29 @@ export default function BillingPage() {
     );
   }
 
-  const handleSubscribe = (plan: 'basic' | 'pro' | 'topup') => {
-    setCheckoutPlan(plan);
-    setCheckoutStatus('checkout');
+  const handleSubscribe = async (plan: 'basic' | 'pro' | 'topup') => {
+    setIsRedirecting(plan);
     setErrorMessage('');
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCheckoutStatus('processing');
     
-    // Simulate secure payment processing delay
-    setTimeout(async () => {
-      try {
-        const response = await fetch('/api/billing/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: checkoutPlan })
-        });
-        
-        if (response.ok) {
-          setCheckoutStatus('success');
-        } else {
-          const data = await response.json().catch(() => ({}));
-          setErrorMessage(data.error || `HTTP error ${response.status}`);
-          setCheckoutStatus('error');
-        }
-      } catch (e) {
-        setErrorMessage(e instanceof Error ? e.message : 'Network error');
-        setCheckoutStatus('error');
+    try {
+      const response = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan })
+      });
+      
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setErrorMessage(data.error || `HTTP error ${response.status}`);
+        setIsRedirecting(null);
       }
-    }, 2500);
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : 'Network error');
+      setIsRedirecting(null);
+    }
   };
 
   return (
@@ -143,9 +135,11 @@ export default function BillingPage() {
             <div className="mt-auto pt-8 border-t border-neutral-800">
               <button 
                 onClick={() => handleSubscribe('basic')}
-                className="w-full py-4 rounded-xl font-semibold text-white bg-neutral-800 hover:bg-neutral-700 transition-colors border border-neutral-700"
+                disabled={isRedirecting !== null}
+                className="w-full py-4 rounded-xl font-semibold text-white bg-neutral-800 hover:bg-neutral-700 transition-colors border border-neutral-700 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Subscribe to Basic
+                {isRedirecting === 'basic' && <Loader2 className="w-5 h-5 animate-spin" />}
+                {isRedirecting === 'basic' ? 'Redirecting...' : 'Subscribe to Basic'}
               </button>
             </div>
           </div>
@@ -196,10 +190,12 @@ export default function BillingPage() {
             <div className="relative mt-auto pt-8 border-t border-neutral-700/50">
               <button 
                 onClick={() => handleSubscribe('pro')}
-                className="group relative w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-neutral-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 transition-all duration-300 shadow-[0_0_20px_rgba(52,211,153,0.3)] hover:shadow-[0_0_30px_rgba(52,211,153,0.5)]"
+                disabled={isRedirecting !== null}
+                className="group relative w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-neutral-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 transition-all duration-300 shadow-[0_0_20px_rgba(52,211,153,0.3)] hover:shadow-[0_0_30px_rgba(52,211,153,0.5)] disabled:opacity-50"
               >
-                <span>Subscribe to Pro</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {isRedirecting === 'pro' && <Loader2 className="w-5 h-5 animate-spin" />}
+                <span>{isRedirecting === 'pro' ? 'Redirecting...' : 'Subscribe to Pro'}</span>
+                {!isRedirecting && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
               </button>
             </div>
           </div>
@@ -236,13 +232,21 @@ export default function BillingPage() {
             <div className="mt-auto pt-8 border-t border-neutral-800">
               <button 
                 onClick={() => handleSubscribe('topup')}
-                className="w-full py-4 rounded-xl font-semibold text-white bg-neutral-800 hover:bg-neutral-700 transition-colors border border-neutral-700"
+                disabled={isRedirecting !== null}
+                className="w-full py-4 rounded-xl font-semibold text-white bg-neutral-800 hover:bg-neutral-700 transition-colors border border-neutral-700 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Buy 50 Credits
+                {isRedirecting === 'topup' && <Loader2 className="w-5 h-5 animate-spin" />}
+                {isRedirecting === 'topup' ? 'Redirecting...' : 'Buy 50 Credits'}
               </button>
             </div>
           </div>
         </div>
+
+        {errorMessage && (
+          <div className="mt-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center max-w-lg">
+            {errorMessage}
+          </div>
+        )}
 
         {/* Secure checkout badges */}
         <div className="mt-12 flex flex-col items-center opacity-60">
@@ -260,152 +264,6 @@ export default function BillingPage() {
           </div>
         </div>
       </main>
-
-      {/* Secure Checkout Modal */}
-      {checkoutPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-          
-          <div className="relative w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-8 text-center">
-            
-            {/* Checkout Form State */}
-            {checkoutStatus === 'checkout' && (
-              <div className="w-full text-left animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">Complete Purchase</h3>
-                  <button onClick={() => setCheckoutPlan(null)} className="text-neutral-500 hover:text-white transition-colors">✕</button>
-                </div>
-                <div className="bg-neutral-800/50 rounded-xl p-4 mb-6 border border-neutral-700/50">
-                  <p className="text-sm text-neutral-400">Selected Plan</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">{checkoutPlan} {checkoutPlan === 'topup' ? 'Credits' : 'Plan'}</p>
-                </div>
-                
-                <form onSubmit={handlePaymentSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-400 mb-1">Card Number</label>
-                    <div className="relative">
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-                      <input 
-                        required
-                        type="text" 
-                        placeholder="0000 0000 0000 0000"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 pl-10 pr-4 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-400 mb-1">Expiry Date</label>
-                      <input 
-                        required
-                        type="text" 
-                        placeholder="MM/YY"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 px-4 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-400 mb-1">CVC</label>
-                      <input 
-                        required
-                        type="text" 
-                        placeholder="123"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 px-4 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-400 mb-1">Name on Card</label>
-                    <input 
-                      required
-                      type="text" 
-                      placeholder="Jane Doe"
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl py-3 px-4 text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                    />
-                  </div>
-                  
-                  <button 
-                    type="submit"
-                    className="w-full mt-6 py-4 rounded-xl font-bold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-[0_0_20px_rgba(52,211,153,0.2)]"
-                  >
-                    Pay Now
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* Processing State */}
-            {checkoutStatus === 'processing' && (
-              <>
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 relative">
-                  <div className="absolute inset-0 border-4 border-emerald-500/30 rounded-full" />
-                  <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Processing Secure Payment...</h3>
-                <p className="text-neutral-400 text-sm mb-6 flex items-center justify-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  256-bit SSL encrypted checkout
-                </p>
-                <div className="w-full max-w-xs h-1 bg-neutral-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full w-full animate-[progress_2.5s_ease-in-out]" />
-                </div>
-              </>
-            )}
-
-            {/* Success State */}
-            {checkoutStatus === 'success' && (
-              <>
-                <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 animate-bounce">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-400" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Payment Successful!</h3>
-                <p className="text-neutral-400 text-sm mb-8">
-                  Your credits have been added to your account.
-                </p>
-                <Link 
-                  href="/budget"
-                  className="w-full py-4 rounded-xl font-semibold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg"
-                >
-                  Start Generating Recipes
-                </Link>
-                <button
-                  onClick={() => {
-                    setCheckoutPlan(null);
-                    setCheckoutStatus('idle');
-                  }}
-                  className="mt-4 text-sm text-neutral-500 hover:text-white transition-colors"
-                >
-                  Close Window
-                </button>
-              </>
-            )}
-
-            {/* Error State */}
-            {checkoutStatus === 'error' && (
-              <>
-                <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
-                  <div className="text-red-500 text-3xl font-black">!</div>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Payment Failed</h3>
-                <p className="text-neutral-400 text-sm mb-8">
-                  {errorMessage ? errorMessage : "There was an error processing your request. Please ensure you are logged in."}
-                </p>
-                <button
-                  onClick={() => {
-                    setCheckoutPlan(null);
-                    setCheckoutStatus('idle');
-                    setErrorMessage('');
-                  }}
-                  className="w-full py-4 rounded-xl font-semibold text-white bg-neutral-800 hover:bg-neutral-700 transition-colors"
-                >
-                  Try Again
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
